@@ -6,13 +6,18 @@
 /* global Console */
 
 const exec = require('execon');
+const currify = require('currify/legacy');
 const Images = require('../dom/images');
-const {Dialog} = DOM;
+const {
+    Dialog,
+    CurrentInfo:Info,
+} = DOM;
 
 CloudCmd.Konsole = ConsoleProto;
 
 function ConsoleProto() {
     const noop = () => {};
+    const cd = currify(_cd);
     
     if (!CloudCmd.config('console'))
         return {
@@ -57,19 +62,24 @@ function ConsoleProto() {
         return CloudCmd.PREFIX + '/console';
     }
     
+    function _cd(fn, dir) {
+        fn(`cd ${dir}`);
+    }
+    
     function getEnv() {
         return {
             ACTIVE_DIR: DOM.getCurrentDirPath.bind(DOM),
             PASSIVE_DIR: DOM.getNotCurrentDirPath.bind(DOM),
             CURRENT_NAME: DOM.getCurrentName.bind(DOM),
             CURRENT_PATH: () => {
-                return DOM.CurrentInfo.path;
+                return Info.path;
             }
         };
     }
     
     function create(callback) {
         const options = {
+            cwd: Info.dirPath,
             env: getEnv(),
             prefix: getPrefix(),
             socketPath: CloudCmd.PREFIX,
@@ -77,6 +87,8 @@ function ConsoleProto() {
         
         Console(Element, options, (spawn) => {
             spawn.on('connect', exec.with(authCheck, spawn));
+            
+            CloudCmd.on('active-dir', cd(spawn.handler));
             exec(callback);
         });
         

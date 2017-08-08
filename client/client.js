@@ -1,6 +1,8 @@
 'use strict';
 
 const itype = require('itype/legacy');
+const emitify = require('emitify/legacy');
+const inherits = require('inherits');
 const rendy = require('rendy');
 const exec = require('execon');
 const Images = require('./dom/images');
@@ -15,6 +17,8 @@ const {
 
 /* global Util, DOM */
 
+inherits(CloudCmdProto, Emitify);
+
 module.exports = new CloudCmdProto(Util, DOM);
 
 function CloudCmdProto(Util, DOM) {
@@ -28,6 +32,8 @@ function CloudCmdProto(Util, DOM) {
         
         console.log(str);
     };
+    
+    Emitify.call(this);
     
     const CloudCmd = this;
     const Info = DOM.CurrentInfo;
@@ -510,10 +516,12 @@ function CloudCmdProto(Util, DOM) {
                 
                 if (!current)
                     current = DOM.getFiles(panel)[0];
-                    
+                
                 DOM.setCurrentFile(current, {
                     history: history
                 });
+                
+                CloudCmd.emit('active-dir', Info.dirPath);
             }
             
             exec(callback);

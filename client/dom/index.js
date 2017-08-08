@@ -159,7 +159,7 @@ function CmdProto() {
      * get current direcotory path
      */
     this.getCurrentDirPath = (panel = DOM.getPanel()) => {
-        const path =  DOM.getByDataName('js-path', panel);
+        const path = DOM.getByDataName('js-path', panel);
         const ret = path && path.textContent;
         
         return ret;
@@ -1062,7 +1062,7 @@ function CmdProto() {
     };
     
     /* scroll on one page*/
-    this.scrollByPages           = (element, pPages) => {
+    this.scrollByPages = (element, pPages) => {
         var ret = element && element.scrollByPages && pPages;
         
         if (ret)
@@ -1072,7 +1072,11 @@ function CmdProto() {
     };
     
     this.changePanel = () => {
+        const Info = CurrentInfo;
         let panel = DOM.getPanel();
+        
+        CloudCmd.emit('passive-dir', Info.dirPath);
+        
         const panelPassive = DOM.getPanel({
             active: false
         });
@@ -1109,6 +1113,8 @@ function CmdProto() {
         DOM.setCurrentFile(current, {
             history: true
         });
+        
+        CloudCmd.emit('active-dir', Info.dirPath);
         
         return DOM;
     };
@@ -1228,6 +1234,9 @@ function CmdProto() {
         info.isOnePanel     =
             info.panel.getAttribute('data-name') ===
             info.panelPassive.getAttribute('data-name');
+        
+        CloudCmd.emit('current-name', info.name);
+        CloudCmd.emit('current-path', info.path);
     };
 }
 
