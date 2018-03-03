@@ -1,17 +1,25 @@
 'use strict';
 
+const path = require('path');
 const fs = require('fs');
-const isDev = process.NODE_ENV === 'development';
-const dir = getDirPath(isDev);
+const readFilesSync = require('./read-files-sync');
+const basenameKeys = require('./basename-keys');
 
-module.exports = {
+const defaultColumns = {
     '': '',
-    'name-size-date': fs.readFileSync(`${dir}/name-size-date.css`, 'utf8'),
     'name-size-date-owner-mode': '',
 };
 
-function getDirPath (isDev) {
-    const dist = isDev ? 'dist-dev' : 'dist';
-    return `${__dirname}/../${dist}/columns`;
-}
+const isDev = process.NODE_ENV === 'development';
+const getDist = (isDev) => isDev ? 'dist-dev' : 'dist';
+
+const dist = getDist(isDev);
+const columnsDir = path.join(__dirname, '..', dist, 'columns');
+const columnsNames = fs.readdirSync(columnsDir);
+const columns = readFilesSync(columnsDir, columnsNames, 'utf8');
+
+module.exports = Object.assign(
+    basenameKeys(columns),
+    defaultColumns,
+);
 

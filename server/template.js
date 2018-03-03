@@ -1,28 +1,14 @@
 'use strict';
 
 const fs = require('fs');
-const join = require('path').join;
+const path = require('path');
+const readFilesSync = require('./read-files-sync');
+const basenameKeys = require('./basename-keys');
+const squad = require('squad/legacy');
 
-const DIR = __dirname + '/../';
-const DIR_TMPL = DIR + 'tmpl/';
-const DIR_FS = DIR_TMPL + 'fs/';
+const templatePath = path.join(__dirname, '..', 'tmpl/fs');
+const templateNames = fs.readdirSync(templatePath);
+const readTemplates = squad(basenameKeys, readFilesSync);
 
-const TMPL_PATH   = [
-    'file',
-    'panel',
-    'path',
-    'pathLink',
-    'link',
-];
-
-module.exports = () => {
-    const templates = {};
-    
-    TMPL_PATH.forEach((name) => {
-        const path = join(DIR_FS, `${name}.hbs`);
-        templates[name] = fs.readFileSync(path, 'utf8');
-    });
-    
-    return templates;
-};
+module.exports = readTemplates(templatePath, templateNames, 'utf8');
 
